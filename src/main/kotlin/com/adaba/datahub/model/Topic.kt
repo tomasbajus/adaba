@@ -11,7 +11,7 @@ interface Topic {
 	var currentLocation : Location?
 	val locationHistory : MutableList<Location>
 	var lastUpdateAt : Date
-	val subscribers: MutableMap<Subscriber, Boolean>
+	val subscribers: MutableMap<Subscriber, Date>
 
 
 	fun register(obj: Subscriber)

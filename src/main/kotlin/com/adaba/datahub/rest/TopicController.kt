@@ -1,10 +1,7 @@
 package com.adaba.datahub.rest
 
 import com.adaba.datahub.context.MessagingContext
-import com.adaba.datahub.model.MetaData
 import com.adaba.datahub.model.Topic
-import com.adaba.datahub.model.impl.MessageImpl
-import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -15,7 +12,6 @@ import javax.inject.Inject
 
 @RestController
 @RequestMapping("/topics")
-@Component
 class TopicController(@Inject var context: MessagingContext) {
 
 	@GetMapping()
@@ -26,11 +22,4 @@ class TopicController(@Inject var context: MessagingContext) {
 
 	@PostMapping()
 	fun createTopic(newTopic: Topic) = context.registerTopic(newTopic)
-
-	@PostMapping("/{topicId}")
-	fun postToTopic(@PathVariable(name = "topicId") topicId: String, message : MessageImpl) {
-		val metaData = MetaData("DUMMY", "NONE", Date(), Date())
-		message.metaData = metaData
-		context.postNewMessageToSubject(UUID.fromString(topicId), message)
-	}
 }

@@ -51,8 +51,8 @@ class MessagingContext() {
 		}
 	}
 
-	fun postNewMessageToSubject(topicID: UUID, message: Message) {
-		val subjectFound = topics.find { it.id === topicID }
+	fun postNewMessageToSubject(message: Message) {
+		val subjectFound = topics.find { it.id === message.topicId}
 
 		subjectFound?.let {
 			println("Message ${message} was successfully posted to Topic ${subjectFound.name}")
@@ -74,7 +74,7 @@ class MessagingContext() {
 							}
 						}
 					}
-					topic.subscribers.set(subscriber, true)
+					topic.subscribers.set(subscriber, Date(Long.MIN_VALUE))
 				}
 			}
 		}

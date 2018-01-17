@@ -4,12 +4,11 @@ import com.adaba.datahub.model.Location
 import com.adaba.datahub.model.Message
 import com.adaba.datahub.model.Subscriber
 import com.adaba.datahub.model.Topic
-import java.util.UUID
-import java.util.Date
+import java.util.*
 
 class TopicImpl(override var id: UUID, override var name: String, override var shortDescription: String?, override var currentLocation: Location?, override var lastUpdateAt: Date) : Topic {
 
-	override val subscribers: MutableMap<Subscriber, Boolean> = mutableMapOf()
+	override val subscribers: MutableMap<Subscriber, Date> = mutableMapOf()
 	override val messageThread: MutableList<Message> = mutableListOf()
 	override val locationHistory: MutableList<Location> = mutableListOf()
 	private val MUTEX = Any()
@@ -17,7 +16,7 @@ class TopicImpl(override var id: UUID, override var name: String, override var s
 	override fun register(obj: Subscriber) {
 		synchronized(MUTEX) {
 			if (!subscribers.contains(obj)) {
-				subscribers.put(obj, false)
+				subscribers.put(obj, Date(Long.MIN_VALUE))
 				obj.topics.add(this)
 			}
 		}
@@ -45,12 +44,12 @@ class TopicImpl(override var id: UUID, override var name: String, override var s
 	}
 
 	override fun getUpdate(subscriber: Subscriber): List<Message> {
-		val shouldUpdate = subscribers.get(subscriber)
+		val lastUpdated = subscribers.get(subscriber)
 		val messages = mutableListOf<Message>()
 
 		// subscriber is subscribed to this topic
-		if (shouldUpdate != null) {
-			if (shouldUpdate) {
+		if (lastUpdated != null) {
+			if (lastUpdated.before(subscriber.lastUpdate)) {
 				for (message in messageThread) {
 					message.metaData?.let { metaData ->
 						{
@@ -60,7 +59,7 @@ class TopicImpl(override var id: UUID, override var name: String, override var s
 						}
 					}
 				}
-				subscribers.put(subscriber, true)
+				subscribers.put(subscriber, Date())
 			}
 		}
 		return messages
